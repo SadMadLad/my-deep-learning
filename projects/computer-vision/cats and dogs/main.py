@@ -13,6 +13,7 @@ def TrainModel():
     batch_size = 32
     epochs = 100
     
+    
     model = CompiledModel(256, 256, 'adam', 'binary_crossentropy', ['accuracy'])
     callback_best_valid = ModelCheckpoint(
         filepath=os.path.join(base_dir, "models", "conv_model.h5"),
