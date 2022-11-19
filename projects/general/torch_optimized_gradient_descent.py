@@ -1,8 +1,12 @@
 import torch
 import numpy as np
+from torch.utils.data import TensorDataset
+from torch.utils.data import DataLoader
+from torch.nn import Linear
+import torch.nn.functional as F
 
 
-def vanilla_gradient_descent():
+def OptimizedGradientDescent():
     inputs = np.array([[73, 67, 43],
                        [91, 88, 64],
                        [87, 134, 58],
@@ -17,38 +21,60 @@ def vanilla_gradient_descent():
     inputs = torch.from_numpy(inputs)
     targets = torch.from_numpy(targets)
 
-    W = torch.randn(size=(2, 3), requires_grad=True)
-    b = torch.randn(size=(2, ), requires_grad=True)
+    # Initializing DataLoader
+    train_ds = TensorDataset(inputs, targets)
+    dataloader = DataLoader(train_ds, batch_size=4, shuffle=True)
 
-    def mse(predictions, truths):
-        diff = truths - predictions
-        return torch.sum(diff*diff) / diff.numel()
+    for X, y in dataloader:
+        print("A Random Batch: ")
+        print("\tX: ", X)
+        print("\ty: ", y)
+        break
 
-    def model(inputs):
-        return inputs @ W.t() + b
+    # Model
+    model = Linear(in_features=3, out_features=2)
 
-    epochs = 50000
-    lr = 1e-5
-    prev_loss = float('inf')
-    for epoch in range(epochs):
-        predictions = model(inputs)
-        loss = mse(predictions, targets)
-        loss.backward()
+    print("\nTest Predictions: ", model(inputs).detach().numpy())
+    print("Model Weights: ", model.weight)
+    print("Model Bias: ", model.bias)
 
-        with torch.no_grad():
-            W.sub_(W*lr)
-            b.sub_(b*lr)
+    # Loss Functions
+    loss_fn = F.mse_loss
+    loss = loss_fn(model(inputs), targets)
 
-            W.grad.zero_()
-            b.grad.zero_()
-        if prev_loss < loss:
-            print("Stop! Loss increasing now")
-            break
-        prev_loss = loss
+    print("\nTest Loss: ", loss.detach().numpy())
+
+    # Optimizer
+    optim = torch.optim.SGD(model.parameters(), lr=1e-5)
+
+    # Fit function for training
+    def fit(model, loss_function, optimizer, epochs, loader):
+        for epoch in range(epochs):
+            for X, y in loader:
+                # 1. Making predictions
+                predictions = model(X)
+                # 2. Calculating loss
+                loss = loss_function(predictions, y)
+                # 3. Computing gradient
+                loss.backward()
+                # 4. Update parameters
+                optimizer.step()
+                # 5. Reset gradients
+                optimizer.zero_grad()
+            
+            if epoch % 10 == 0:
+                print(f"Epoch: {epoch} | Loss: {loss.detach().numpy()}")
+
+        return model
+
+    model = fit(model, loss_fn, optim, 100, dataloader)
+    print("Final Predictions: ")
+    final_predictions = model(inputs)
+    print(final_predictions)
+    print("Targets: ")
+    print(targets)
+
+    return
 
 
-        if epoch % 100 == 0:
-            print(f"Epoch: {epoch} | Loss: {loss.detach().numpy()}")
-        
-
-vanilla_gradient_descent()
+OptimizedGradientDescent()
