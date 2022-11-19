@@ -6,7 +6,7 @@ base_dir = os.path.dirname(os.path.abspath(__file__))
 
 
 def TextsAndLabels():
-    directory = os.path.join(base_dir,"dataset")
+    directory = os.path.join(base_dir, "..","dataset")
     movie_names = os.listdir(directory)
 
     texts = []

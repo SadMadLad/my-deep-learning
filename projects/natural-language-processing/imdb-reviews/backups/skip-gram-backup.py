@@ -82,4 +82,4 @@ def Tokenize():
 
     return
 
-# Tokenize()
+Tokenize()
