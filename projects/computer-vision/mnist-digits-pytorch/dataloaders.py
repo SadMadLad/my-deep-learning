@@ -24,7 +24,7 @@ def Loaders():
 
     training_batch_size = 128
     validation_batch_size = 16
-    test_batch_size = 32
+    test_batch_size = 1000
 
     train_ds = DataLoader(
         train_ds, batch_size=training_batch_size, shuffle=True)
