@@ -18,7 +18,7 @@ def Loader():
     print("Validation Samples: ", len(valid_ds))
     train_batch_size = 256
     train_loader = DataLoader(
-        train_ds, batch_size=train_batch_size, num_workers=2, shuffle=True)
+        train_ds, batch_size=train_batch_size, shuffle=True)
     valid_loader = DataLoader(valid_ds, batch_size=1000)
 
     return train_loader, valid_loader
